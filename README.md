@@ -9,16 +9,16 @@ UAST is created to allow writing static analyzers with loosely coupling to progr
 None
 
 ## Supported languages
-None (check road map for future plans)
+None
 
 ## Output interface
-None (check road map for future plans)
+None
 
 ## Installation
 TBD
 
 ## Contributors
-Project was started as part of term paper in HSE CS faculty.
+Project was started as part of the term paper in HSE CS faculty.
 
 ## License
 Licensed under [LGPL 2.1](https://github.com/aravij/uast/blob/master/LICENSE)
