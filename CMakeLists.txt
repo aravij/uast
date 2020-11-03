@@ -8,5 +8,4 @@ add_subdirectory(source/cpp-parser)
 add_subdirectory(source/java-parser)
 add_subdirectory(source/python-parser)
 add_subdirectory(tests)
-
 #find_package(Catch REQUIRED)
