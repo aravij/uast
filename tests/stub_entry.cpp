@@ -1,8 +1,5 @@
 #include <iostream>
 #include "uast.h"
-#include "cpp_parser.h"
-#include "java_parser.h"
-#include "python_parser.h"
 
 int main() {
     std::cout << "Empty test started:" << std::endl;
