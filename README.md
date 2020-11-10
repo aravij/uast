@@ -21,7 +21,7 @@ TBD
 Project was started as part of the term paper in HSE CS faculty.
 
 ## Wiki
-Check [wiki](https://github.com/aravij/uast/wiki/Wiki-content) for more detailed informaition about project development.
+Check [wiki](https://github.com/aravij/uast/wiki) for more detailed informaition about project development.
 
 ## License
 Licensed under [LGPL 2.1](https://github.com/aravij/uast/blob/master/LICENSE)
