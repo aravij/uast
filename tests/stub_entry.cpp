@@ -12,6 +12,5 @@ int main() {
     std::cout << "- Testing python-parser:" << std::endl;
     std::cout << uast::python_parser::Stub() << std::endl;
 
-
     return 0;
 }

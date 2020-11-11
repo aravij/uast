@@ -5,5 +5,3 @@ set(SOURCE_TESTS test_python_parser.cpp ../catch.hpp)
 
 add_library(python_parser STATIC ${SOURCE_LIB})
 target_include_directories(python_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-add_executable(test_python_parser ${SOURCE_TESTS})

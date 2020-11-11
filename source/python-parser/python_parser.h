@@ -1,3 +1,7 @@
 #pragma once
 
-#include "python_parser_stub.cpp"
+#include <string>
+
+namespace uast::python_parser {
+std::string Stub();
+}
