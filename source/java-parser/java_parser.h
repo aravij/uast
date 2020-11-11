@@ -1,3 +1,7 @@
 #pragma once
 
-#include "java_parser_stub.cpp"
+#include <string>
+
+namespace uast::java_parser {
+    std::string Stub();
+}

@@ -1,3 +1,7 @@
 #pragma once
 
-#include "cpp_parser_stub.cpp"
+#include <string>
+
+namespace uast::cpp_parser {
+    std::string Stub();
+}
