@@ -8,7 +8,7 @@ set(CMAKE_CXX_FLAGS_ASAN "-g -fsanitize=address,undefined -fno-sanitize-recover=
 
 add_subdirectory(source)
 add_subdirectory(source/cpp-parser)
-add_subdirectory(source/java-parser)
-add_subdirectory(source/python-parser)
+#add_subdirectory(source/java-parser)
+#add_subdirectory(source/python-parser)
 add_subdirectory(tests)
 #find_package(Catch REQUIRED)

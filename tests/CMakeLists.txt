@@ -3,8 +3,8 @@ project(tests)
 set(SOURCE_EXE stub_entry.cpp)
 set(SOURCE_REG_TESTS reg_test.cpp ../source/catch.hpp)
 set(SOURCE_CPP_TESTS ../source/cpp-parser/test_cpp_parser.cpp ../source/catch.hpp)
-set(SOURCE_JAVA_TESTS ../source/java-parser/test_java_parser.cpp ../source/catch.hpp)
-set(SOURCE_PYTHON_TESTS ../source/python-parser/test_python_parser.cpp ../source/catch.hpp)
+#set(SOURCE_JAVA_TESTS ../source/catch.hpp)
+#set(SOURCE_PYTHON_TESTS ../source/catch.hpp)
 set(SOURCE_UAST_TESTS ../source/test_uast.cpp ../source/catch.hpp)
 
 add_executable(stub_entry ${SOURCE_EXE})
@@ -19,13 +19,13 @@ add_executable(test_cpp_parser ${SOURCE_CPP_TESTS})
 target_link_libraries(test_cpp_parser LINK_PUBLIC cpp_parser)
 target_include_directories(test_cpp_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../source/cpp-parser)
 
-add_executable(test_java_parser ${SOURCE_JAVA_TESTS})
-target_link_libraries(test_java_parser LINK_PUBLIC java_parser)
-target_include_directories(test_java_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../source/java-parser)
-
-add_executable(test_python_parser ${SOURCE_PYTHON_TESTS})
-target_link_libraries(test_python_parser LINK_PUBLIC python_parser)
-target_include_directories(test_python_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../source/python-parser)
+#add_executable(test_java_parser ${SOURCE_JAVA_TESTS})
+#target_link_libraries(test_java_parser LINK_PUBLIC java_parser)
+#target_include_directories(test_java_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../source/java-parser)
+#
+#add_executable(test_python_parser ${SOURCE_PYTHON_TESTS})
+#target_link_libraries(test_python_parser LINK_PUBLIC python_parser)
+#target_include_directories(test_python_parser PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../source/python-parser)
 
 add_executable(test_uast ${SOURCE_UAST_TESTS})
 
