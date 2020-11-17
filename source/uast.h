@@ -3,6 +3,7 @@
 #include <string>
 
 #include "cpp_parser.h"
+#include "node.h"
 
 // #include "java_parser.h"
 // #include "python_parser.h"
