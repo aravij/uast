@@ -6,3 +6,6 @@ build
 
 #Ignore jetBrains' files
 /**/.idea/*
+
+#Ignore .dot files
+uast*
