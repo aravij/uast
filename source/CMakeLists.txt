@@ -1,6 +1,6 @@
 project(uast_core)
 
-set(SOURCE_LIB uast.h uast_stub.cpp node.cpp node.h)
+set(SOURCE_LIB uast.h uast_stub.cpp)
 
 add_library(uast_core STATIC ${SOURCE_LIB})
 

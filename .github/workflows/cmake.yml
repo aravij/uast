@@ -23,6 +23,20 @@ jobs:
         # We'll use this as our working directory for all subsequent commands
         run: cmake -E make_directory ${{runner.workspace}}/build
 
+      - name: Install conan
+        working-directory: ${{runner.workspace}}/uast
+        shell: bash
+        run: |
+          pip install wheel
+          pip install conan
+          sudo ln -s ~/.local/bin/conan /usr/local/bin/conan
+
+      - name: Install Catch2
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: |
+          conan install ../uast
+
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment variable
         # access regardless of the host operating system
@@ -45,10 +59,9 @@ jobs:
         # Execute tests defined by the CMake configuration.
         # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
         run: |
-          tests/test_cpp_parser -d yes --order decl
-          tests/test_uast -d yes --order decl
-          tests/reg_test -d yes --order decl
-
+          bin/test_cpp_parser -d yes --order decl
+          bin/test_uast -d yes --order decl
+          bin/reg_test -d yes --order decl
 
   build-asan:
     # The CMake configure and build commands are platform agnostic and should work equally
@@ -63,6 +76,20 @@ jobs:
         # Some projects don't allow in-source building, so create a separate build directory
         # We'll use this as our working directory for all subsequent commands
         run: cmake -E make_directory ${{runner.workspace}}/build
+
+      - name: Install conan
+        working-directory: ${{runner.workspace}}/uast
+        shell: bash
+        run: |
+          pip install wheel
+          pip install conan
+          sudo ln -s ~/.local/bin/conan /usr/local/bin/conan
+
+      - name: Install Catch2
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: |
+          conan install ../uast
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment variable
@@ -86,9 +113,9 @@ jobs:
         # Execute tests defined by the CMake configuration.
         # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
         run: |
-          tests/test_cpp_parser -d yes --order decl
-          tests/test_uast -d yes --order decl
-          tests/reg_test -d yes --order decl
+          bin/test_cpp_parser -d yes --order decl
+          bin/test_uast -d yes --order decl
+          bin/reg_test -d yes --order decl
 
   cpplint:
     name: cpplint
@@ -99,6 +126,21 @@ jobs:
         # Some projects don't allow in-source building, so create a separate build directory
         # We'll use this as our working directory for all subsequent commands
         run: cmake -E make_directory ${{runner.workspace}}/build
+
+      - name: Install conan
+        working-directory: ${{runner.workspace}}/uast
+        shell: bash
+        run: |
+          pip install wheel
+          pip install conan
+          sudo ln -s ~/.local/bin/conan /usr/local/bin/conan
+          printenv
+
+      - name: Install Catch2
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: |
+          conan install ../uast
 
       - name: Configure CMake
         # Use a bash shell so we can use the same syntax for environment variable
@@ -127,6 +169,8 @@ jobs:
         working-directory: ${{runner.workspace}}/uast
         shell: bash
         run: python -m cpplint --recursive --exclude=source/catch.hpp --exclude=source/*/test* --exclude=source/test* --filter=-legal/copyright,-build/include_subdir source/*
+
+
   autoformat_job:
     runs-on: ubuntu-latest
     name: Automatic formatting
