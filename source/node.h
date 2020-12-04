@@ -5,23 +5,51 @@
 #include <vector>
 
 namespace uast {
-    class Node;
-
-    template<typename T>
-    class Leaf;
-
     class Node {
         std::unordered_multimap<std::string, std::shared_ptr<Node>> nodes_;
-        std::weak_ptr<Node> parent_; // To avoid memory leak
+        std::string type_;
 
     public:
         class NodeIterator : std::iterator<std::forward_iterator_tag, Node> {
+            std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator cur_;
+
+        public:
+            NodeIterator(std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator start) : cur_(start) {
+            }
+
+            virtual NodeIterator operator++(int);
+
+            virtual NodeIterator &operator++();
+
+            virtual std::shared_ptr<Node> operator*();
+
+            virtual Node *operator->();
+
+            virtual bool operator==(const NodeIterator &other);
+
+            virtual bool operator!=(const NodeIterator &other);
+
+            virtual int GetDepth();
+
+            virtual ~NodeIterator() = default;
         };
 
-        class RecursiveNodeIterator : NodeIterator {
-        };
+        class RecursiveNodeIterator : public NodeIterator {
+            std::vector<std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator> cur_stack_;
+            std::vector<std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator> end_stack_;
+        public:
+            RecursiveNodeIterator(std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator begin,
+                                  std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator end);
 
-        class FixedTypeNodeIterator : NodeIterator {
+            virtual NodeIterator operator++(int) override;
+
+            virtual NodeIterator &operator++() override;
+
+            virtual std::shared_ptr<Node> operator*() override;
+
+            virtual Node *operator->() override;
+
+            virtual int GetDepth() override;
         };
 
         class NodeRange {
@@ -41,54 +69,38 @@ namespace uast {
             }
         };
 
-        Node(std::shared_ptr<Node> parent = std::shared_ptr<Node>()) : parent_(parent) {
+        Node(std::string type) : type_(type), nodes_() {
         }
 
-        Node(std::vector<std::string> types,
-             std::vector<std::shared_ptr<Node>> children,
-             std::shared_ptr<Node> parent = std::shared_ptr<Node>());
+        Node(std::string type,
+             std::vector<std::string> edges_names,
+             std::vector<std::shared_ptr<Node>> children);
 
-        void AddChild(std::string type, std::shared_ptr<Node> child);
+        Node(std::string type,
+             std::vector<std::string> edges_names,
+             std::vector<Node> children);
 
-        void AddNodeChild(std::string type, Node child);
+        void AddChild(std::string edge_name, std::shared_ptr<Node> child);
 
-        template<typename T>
-        void AddLeafChild(std::string type, Leaf<T> child);
+        void AddChild(std::string edge_name, Node child);
 
-        std::shared_ptr<Node> GetParent();
+        std::shared_ptr<Node> GetChild(std::string edge_name);
 
-        std::shared_ptr<Node> GetChild(std::string type);
+        std::string GetType();
 
-        template <typename T>
-        T  GetChildValue(std::string type);
+        bool IsLeaf() {
+            return nodes_.empty();
+        }
 
         // Returns children or, optionally, all inheritors
         NodeRange GetChildren(bool recursive = false);
 
-        NodeRange GetChildren(std::string type);
+        NodeRange GetChildren(std::string edge_name);
 
-        template<typename M>
-        std::shared_ptr<Leaf<M>> GetLeaf(std::string type);
-
-        std::shared_ptr<Node> operator[](std::string type) {
-            return GetChild(type);
-        }
-
-        template <typename T>
-        T  operator()(std::string type) {
-            return GetChildValue<T>(type);
+        std::shared_ptr<Node> operator[](std::string edge_name) {
+            return GetChild(edge_name);
         }
 
         virtual ~Node() = default;
-    };
-
-    template<typename T>
-    class Leaf : Node {
-        T value_;
-    public:
-        Leaf(T value, std::shared_ptr<Node> parent = std::shared_ptr<Node>()) : Node(parent), value_(std::move(value)) {
-        }
-
-        T GetValue();
     };
 }
