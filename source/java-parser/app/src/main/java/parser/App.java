@@ -19,6 +19,10 @@ public class App {
       }
 
       try {
+        File file = new File(args[i]);
+        if (!file.exists()) {
+          throw new FileNotFoundException("There is no file located at " + args[i]);
+        }
         CompilationUnit cu = StaticJavaParser.parse(new FileInputStream(args[i]));
         writer.write(new DotPrinter(true).output(cu) + "\n");
       } catch (Exception e) {
