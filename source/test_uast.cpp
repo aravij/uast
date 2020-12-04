@@ -85,3 +85,7 @@ TEST_CASE("Node basic test", "[uast::Node]") {
 TEST_CASE("Node iteration tests") {
     {}
 }
+
+TEST_CASE("Builder tests") {
+    {}
+}

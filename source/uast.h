@@ -27,7 +27,6 @@ namespace uast {
 
         struct DotVertex {
             std::string type;
-            std::string value;
         };
 
         struct DotEdge {
@@ -37,8 +36,8 @@ namespace uast {
 
 
     Node build(const std::string& filePath,
-               std::string& javaVmPath   = (std::string&)"",
-               std::string& pythonVmPath = (std::string&)"");
+               std::string javaVmPath   = "",
+               std::string pythonVmPath = "");
 
     std::string Stub();
 }

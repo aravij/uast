@@ -1,5 +1,4 @@
 #include <string>
-#include <filesystem>
 #include <functional>
 #include <boost/graph/graphviz.hpp>
 
@@ -9,7 +8,7 @@ namespace uast {
 
 namespace {
 PLanguage detectLang(const std::string& filePath) {
-    std::string fileExtension = std::filesystem::path(filePath).extension();
+    std::string fileExtension = filePath.substr(filePath.find_last_of('.'));
     for (auto& [pLang, setOfExtensions] : extensions) {
         if (setOfExtensions.count(fileExtension)) {
             return pLang;
@@ -18,7 +17,8 @@ PLanguage detectLang(const std::string& filePath) {
     return None;
 }
 
-std::string getRunner(const PLanguage& pLang, const std::string& javaVmPath,
+std::string getRunner(const PLanguage& pLang,
+                      const std::string& javaVmPath,
                       const std::string& pythonVmPath) {
 
     const std::string runCppParser = "cpp_parser/cpp_parser.exe",
@@ -36,7 +36,9 @@ std::string getRunner(const PLanguage& pLang, const std::string& javaVmPath,
 }
 }  // namespace
 
-Node build(const std::string& filePath, std::string& javaVmPath, std::string& pythonVmPath) {
+Node build(const std::string& filePath,
+           std::string javaVmPath,
+           std::string pythonVmPath) {
 
     // Add backslash in the end of path
     if (!javaVmPath.empty() && javaVmPath.back() != '/')
