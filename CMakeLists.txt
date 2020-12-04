@@ -6,6 +6,9 @@ set(CMAKE_CXX_FLAGS_ASAN "-g -fsanitize=address,undefined -fno-sanitize-recover=
         CACHE STRING "Compiler flags in asan build"
         FORCE)
 
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
 add_subdirectory(source)
 add_subdirectory(source/cpp-parser)
 #add_subdirectory(source/java-parser)
