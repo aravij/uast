@@ -17,8 +17,7 @@ PLanguage detectLang(const std::string& filePath) {
     return None;
 }
 
-std::string getRunner(const PLanguage& pLang,
-                      const std::string& javaVmPath,
+std::string getRunner(const PLanguage& pLang, const std::string& javaVmPath,
                       const std::string& pythonVmPath) {
 
     const std::string runCppParser = "cpp_parser/cpp_parser.exe",
@@ -36,9 +35,7 @@ std::string getRunner(const PLanguage& pLang,
 }
 }  // namespace
 
-Node build(const std::string& filePath,
-           std::string javaVmPath,
-           std::string pythonVmPath) {
+Node build(const std::string& filePath, std::string javaVmPath, std::string pythonVmPath) {
 
     // Add backslash in the end of path
     if (!javaVmPath.empty() && javaVmPath.back() != '/')
