@@ -10,34 +10,34 @@
 // #include "python_parser.h"
 
 namespace uast {
-    namespace {
-        enum PLanguage { Cpp, Java, Python, None };
+namespace {
+    enum PLanguage { Cpp, Java, Python, None };
 
-        std::unordered_map<PLanguage, std::unordered_set<std::string>> extensions = {
-            {Cpp, {".CPP", ".cpp", ".cxx", ".CXX", ".hpp", ".hxx", ".Hxx", ".HXX"}},
-            {Java, {".java"}},
-            {Python, {".py", ".py3"}}
-        };
+    std::unordered_map<PLanguage, std::unordered_set<std::string>> extensions = {
+        {Cpp, {".CPP", ".cpp", ".cxx", ".CXX", ".hpp", ".hxx", ".Hxx", ".HXX"}},
+        {Java, {".java"}},
+        {Python, {".py", ".py3"}}
+    };
 
-        PLanguage detectLang(const std::string& filePath);
+    PLanguage detectLang(const std::string& filePath);
 
-        std::string getRunner(const PLanguage& pLang,
-                              const std::string& javaVmPath,
-                              const std::string& pythonVmPath);
+    std::string getRunner(const PLanguage& pLang,
+                          const std::string& javaVmPath,
+                          const std::string& pythonVmPath);
 
-        struct DotVertex {
-            std::string type;
-        };
+    struct DotVertex {
+        std::string type;
+    };
 
-        struct DotEdge {
-            std::string name;
-        };
-    }
+    struct DotEdge {
+        std::string name;
+    };
+} // namespace
 
 
-    Node build(const std::string& filePath,
-               std::string javaVmPath   = "",
-               std::string pythonVmPath = "");
+Node build(const std::string& filePath,
+           std::string javaVmPath   = "",
+           std::string pythonVmPath = "");
 
-    std::string Stub();
-}
+std::string Stub();
+} // namespace uast

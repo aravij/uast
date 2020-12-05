@@ -168,8 +168,7 @@ jobs:
       - name: cpplint
         working-directory: ${{runner.workspace}}/uast
         shell: bash
-        run: python -m cpplint --recursive --exclude=source/catch.hpp --exclude=source/*/test* --exclude=source/test* --filter=-legal/copyright,-build/include_subdir source/*
-
+        run: python -m cpplint --recursive --exclude=source/catch.hpp --exclude=source/*/test* --exclude=source/test* --filter=-legal/copyright,-build/include_subdir,-build/include_what_you_use --linelength=120 source/*
 
   autoformat_job:
     runs-on: ubuntu-latest

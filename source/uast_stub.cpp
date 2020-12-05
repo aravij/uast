@@ -36,7 +36,6 @@ std::string getRunner(const PLanguage& pLang, const std::string& javaVmPath,
 }  // namespace
 
 Node build(const std::string& filePath, std::string javaVmPath, std::string pythonVmPath) {
-
     // Add backslash in the end of path
     if (!javaVmPath.empty() && javaVmPath.back() != '/')
         javaVmPath += '/';
