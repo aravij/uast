@@ -7,10 +7,11 @@ set(SOURCE_CPP_TESTS ../source/cpp-parser/test_cpp_parser.cpp)
 #set(SOURCE_JAVA_TESTS ../source/catch.hpp)
 #set(SOURCE_PYTHON_TESTS ../source/catch.hpp)
 
+set(CMAKE_CXX_FLAGS -lboost_graph)
 set(SOURCE_UAST_TESTS ../source/test_uast.cpp)
 
 add_executable(stub_entry ${SOURCE_EXE})
-target_link_libraries(stub_entry uast_core)
+target_link_libraries(stub_entry LINK_PUBLIC uast_core)
 target_include_directories(stub_entry PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../source)
 
 add_executable(reg_test ${SOURCE_REG_TESTS})

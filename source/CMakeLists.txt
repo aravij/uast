@@ -1,5 +1,6 @@
 project(uast_core)
 
+set(CMAKE_CXX_FLAGS -lboost_graph)
 set(SOURCE_LIB uast.h uast_stub.cpp node.h node.cpp)
 
 add_library(uast_core STATIC ${SOURCE_LIB})

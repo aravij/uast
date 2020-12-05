@@ -1,7 +1,6 @@
 #include <string>
 #include <functional>
 #include <boost/graph/graphviz.hpp>
-#include <boost/graph/detail/read_graphviz_new.hpp>
 
 #include "uast.h"
 
