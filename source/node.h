@@ -3,74 +3,86 @@
 #include <unordered_map>
 #include <any>
 #include <vector>
+#include <stack>
+#include <functional>
 
 namespace uast {
     class Node {
-        std::unordered_multimap<std::string, std::shared_ptr<Node>> nodes_;
+        std::unordered_multimap<std::string, std::shared_ptr<Node>> children_;
+        using EdgeNodePair = std::pair<std::string, std::shared_ptr<Node>>;
+        using Iterator = std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator;
         std::string type_;
 
     public:
-        class NodeIterator : std::iterator<std::forward_iterator_tag, Node> {
-            std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator cur_;
+        class DFSIterator {
+        protected:
+            std::stack<std::pair<Iterator, Iterator>> *stack_;
+
+            void GoDown();
+
+            void PopEnds();
 
         public:
-            NodeIterator(std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator start) : cur_(start) {
-            }
+            DFSIterator(std::stack<std::pair<Iterator, Iterator>> *stack);
 
-            virtual NodeIterator operator++(int);
+            DFSIterator &operator++();
 
-            virtual NodeIterator &operator++();
+            DFSIterator operator++(int);
 
-            virtual std::shared_ptr<Node> operator*();
+            bool operator==(const DFSIterator &other) const;
 
-            virtual Node *operator->();
+            bool operator!=(const DFSIterator &other) const;
 
-            virtual bool operator==(const NodeIterator &other);
+            EdgeNodePair operator*();
 
-            virtual bool operator!=(const NodeIterator &other);
-
-            virtual int GetDepth();
-
-            virtual ~NodeIterator() = default;
+            Iterator operator->();
         };
 
-        class RecursiveNodeIterator : public NodeIterator {
-            std::vector<std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator> cur_stack_;
-            std::vector<std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator> end_stack_;
-        public:
-            RecursiveNodeIterator(std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator begin,
-                                  std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator end);
-
-            virtual NodeIterator operator++(int) override;
-
-            virtual NodeIterator &operator++() override;
-
-            virtual std::shared_ptr<Node> operator*() override;
-
-            virtual Node *operator->() override;
-
-            virtual int GetDepth() override;
-        };
-
-        class NodeRange {
-            NodeIterator begin_;
-            NodeIterator end_;
+        class DFSRange {
+        protected:
+            std::stack<std::pair<Iterator, Iterator>> stack_;
+            std::stack<std::pair<Iterator, Iterator>> empty_stack_;
 
         public:
-            NodeIterator begin() { // NOLINT
-                return begin_;
-            }
+            DFSRange(Node *node);
 
-            NodeIterator end() { // NOLINT
-                return end_;
-            }
+            DFSIterator begin(); // NOLINT
 
-            NodeRange(NodeIterator begin, NodeIterator end) : begin_(begin), end_(end) {
-            }
+            DFSIterator end(); // NOLINT
         };
 
-        Node(std::string type) : type_(type), nodes_() {
-        }
+        class DFSQueryIterator : DFSIterator {
+        protected:
+            std::function<bool(size_t, size_t, EdgeNodePair)> predicate_;
+
+        public:
+            // Enter only nodes, which are fitting predicate
+            DFSQueryIterator(std::function<bool(uint64_t, uint64_t,
+                                                std::pair<std::basic_string<char>, std::shared_ptr<Node>>)> predicate,
+                             std::stack<std::pair<Iterator, Iterator>> *stack);
+
+            DFSIterator &operator++();
+
+//            DFSIterator operator++(int);
+
+//            bool operator== (const DFSIterator& other) const;
+
+//            EdgeNodePair operator* ();
+
+//            EdgeNodePair& operator->();
+        };
+
+        class DFSQueryRange {
+            std::function<bool(size_t, size_t, EdgeNodePair)> predicate_;
+        public:
+            DFSQueryRange(Node *node, std::function<bool(size_t, EdgeNodePair)> predicate);
+
+            DFSIterator begin(); // NOLINT
+
+            DFSIterator end(); // NOLINT
+        };
+
+        Node(std::string type);
 
         Node(std::string type,
              std::vector<std::string> edges_names,
@@ -88,19 +100,16 @@ namespace uast {
 
         std::string GetType();
 
-        bool IsLeaf() {
-            return nodes_.empty();
-        }
+        bool IsLeaf();
 
-        // Returns children or, optionally, all inheritors
-        NodeRange GetChildren(bool recursive = false);
+        std::shared_ptr<Node> operator[](std::string edge_name);
 
-        NodeRange GetChildren(std::string edge_name);
-
-        std::shared_ptr<Node> operator[](std::string edge_name) {
-            return GetChild(edge_name);
-        }
+        DFSRange DFS();
 
         virtual ~Node() = default;
     };
 }
+
+
+
+
