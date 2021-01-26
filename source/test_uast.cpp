@@ -20,8 +20,8 @@ TEST_CASE("Node basic test", "[uast::Node]") {
         uast::Node node("1");
         uast::Node node_1("12", std::vector<std::string>{"a"}, std::vector<uast::Node>{node});
         uast::Node node_2(
-                "22", std::vector<std::string>{"a"},
-                std::vector<std::shared_ptr<uast::Node>>{std::make_shared<uast::Node>(node)});
+            "22", std::vector<std::string>{"a"},
+            std::vector<std::shared_ptr<uast::Node>>{std::make_shared<uast::Node>(node)});
         REQUIRE(node.GetType() == "1");
         REQUIRE(node_1.GetType() == "12");
         REQUIRE(node_2.GetType() == "22");
@@ -29,8 +29,8 @@ TEST_CASE("Node basic test", "[uast::Node]") {
     std::shared_ptr<uast::Node> node_1 = std::make_shared<uast::Node>("1");
     std::shared_ptr<uast::Node> node_2 = std::make_shared<uast::Node>("2");
     std::shared_ptr<uast::Node> node_p =
-            std::make_shared<uast::Node>("+", std::vector<std::string>{"lhs", "rhs"},
-                                         std::vector<std::shared_ptr<uast::Node>>{node_1, node_2});
+        std::make_shared<uast::Node>("+", std::vector<std::string>{"lhs", "rhs"},
+                                     std::vector<std::shared_ptr<uast::Node>>{node_1, node_2});
     std::shared_ptr<uast::Node> node_m;
 
     SECTION("Linking & getter") {
@@ -38,8 +38,8 @@ TEST_CASE("Node basic test", "[uast::Node]") {
         REQUIRE(node_p->GetChild("rhs") == node_2);
 
         node_m =
-                std::make_shared<uast::Node>("*", std::vector<std::string>{"rhs", "lhs"},
-                                             std::vector<std::shared_ptr<uast::Node>>{node_1, node_2});
+            std::make_shared<uast::Node>("*", std::vector<std::string>{"rhs", "lhs"},
+                                         std::vector<std::shared_ptr<uast::Node>>{node_1, node_2});
 
         REQUIRE(node_m->GetChild("lhs") == node_2);
         REQUIRE(node_m->GetChild("rhs") == node_1);
@@ -70,11 +70,11 @@ TEST_CASE("Node basic test", "[uast::Node]") {
     SECTION("Edge cases") {
         REQUIRE(!node_p->GetChild("mhs"));
         REQUIRE_THROWS(
-                std::make_shared<uast::Node>("*", std::vector<std::string>{"lhs"},
-                                             std::vector<std::shared_ptr<uast::Node>>{node_1, node_2}));
+            std::make_shared<uast::Node>("*", std::vector<std::string>{"lhs"},
+                                         std::vector<std::shared_ptr<uast::Node>>{node_1, node_2}));
         REQUIRE_THROWS(
-                std::make_shared<uast::Node>("*", std::vector<std::string>{"lhs", "rhs"},
-                                             std::vector<std::shared_ptr<uast::Node>>{node_1}));
+            std::make_shared<uast::Node>("*", std::vector<std::string>{"lhs", "rhs"},
+                                         std::vector<std::shared_ptr<uast::Node>>{node_1}));
         REQUIRE_THROWS(std::make_shared<uast::Node>("*", std::vector<std::string>{"lhs"},
                                                     std::vector<std::shared_ptr<uast::Node>>{}));
         REQUIRE_NOTHROW(std::make_shared<uast::Node>("*", std::vector<std::string>{},

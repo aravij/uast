@@ -12,11 +12,11 @@ std::shared_ptr<uast::Node> uast::Node::GetChild(std::string edge_name) {
 
 uast::Node::Node(std::string type, std::vector<std::string> edges_names,
                  std::vector<std::shared_ptr<Node>> children)
-        : type_(type), children_() {
+    : type_(type), children_() {
     if (edges_names.size() != children.size()) {
         throw std::runtime_error(
-                "Number of keys (types): " + std::to_string(edges_names.size()) +
-                " is not equal to number of nodes: " + std::to_string(children.size()));
+            "Number of keys (types): " + std::to_string(edges_names.size()) +
+            " is not equal to number of nodes: " + std::to_string(children.size()));
     }
 
     for (size_t i = 0; i < children.size(); i++) {
@@ -25,11 +25,11 @@ uast::Node::Node(std::string type, std::vector<std::string> edges_names,
 }
 
 uast::Node::Node(std::string type, std::vector<std::string> edges_names, std::vector<Node> children)
-        : type_(type), children_() {
+    : type_(type), children_() {
     if (edges_names.size() != children.size()) {
         throw std::runtime_error(
-                "Number of keys (types): " + std::to_string(edges_names.size()) +
-                " is not equal to number of nodes: " + std::to_string(children.size()));
+            "Number of keys (types): " + std::to_string(edges_names.size()) +
+            " is not equal to number of nodes: " + std::to_string(children.size()));
     }
 
     for (size_t i = 0; i < children.size(); i++) {
@@ -64,11 +64,11 @@ uast::Node::DFSRange uast::Node::DFS() {
     return uast::Node::DFSRange(this);
 }
 
-
-uast::Node::DFSIterator::DFSIterator(std::stack<std::pair<Iterator, Iterator>> *stack) : stack_(stack) {
+uast::Node::DFSIterator::DFSIterator(std::stack<std::pair<Iterator, Iterator>> *stack)
+    : stack_(stack) {
     PopEnds();
     GoDown();
-//    PopEnds();
+    //    PopEnds();
 }
 
 uast::Node::DFSIterator &uast::Node::DFSIterator::operator++() {
@@ -97,9 +97,11 @@ uast::Node::DFSIterator uast::Node::DFSIterator::operator++(int) {
 }
 
 bool uast::Node::DFSIterator::operator==(const uast::Node::DFSIterator &other) const {
-    bool empty = stack_->empty() || (stack_->size() == 1 && stack_->top().first == stack_->top().second);
-    bool other_empty = other.stack_->empty() ||
-                       (other.stack_->size() == 1 && other.stack_->top().first == other.stack_->top().second);
+    bool empty =
+        stack_->empty() || (stack_->size() == 1 && stack_->top().first == stack_->top().second);
+    bool other_empty =
+        other.stack_->empty() ||
+        (other.stack_->size() == 1 && other.stack_->top().first == other.stack_->top().second);
 
     if (other_empty != empty) {
         return false;
@@ -172,23 +174,27 @@ uast::Node::DFSRange::DFSRange(uast::Node *node) : stack_() {
     stack_.emplace(node->children_.begin(), node->children_.end());
 }
 
-uast::Node::DFSIterator uast::Node::DFSRange::begin() { // NOLINT
+uast::Node::DFSIterator uast::Node::DFSRange::begin() {  // NOLINT
     return uast::Node::DFSIterator(&stack_);
 }
 
-uast::Node::DFSIterator uast::Node::DFSRange::end() { // NOLINT
+uast::Node::DFSIterator uast::Node::DFSRange::end() {  // NOLINT
     return uast::Node::DFSIterator(&empty_stack_);
 }
 
-//uast::Node::DFSQueryIterator::DFSQueryIterator(std::stack<std::pair<Iterator, Iterator>> *node, std::function<bool(size_t, EdgeNodePair)> predicate) : uast::Node::DFSIterator(node),  {
+// uast::Node::DFSQueryIterator::DFSQueryIterator(std::stack<std::pair<Iterator, Iterator>> *node,
+// std::function<bool(size_t, EdgeNodePair)> predicate) : uast::Node::DFSIterator(node),  {
 //
 //}
 
-//uast::Node::DFSQueryIterator::DFSQueryIterator(std::function<bool(uint64_t,
-//                                                                  std::pair<std::basic_string<char>, std::shared_ptr<Node>>)> predicate,
-//                                               std::stack<std::pair<Iterator, Iterator>> *stack) : DFSIterator(stack), predicate_(predicate) {
-//    bool empty = stack_->empty() || (stack_->size() == 1 && stack_->top().first == stack_->top().second);
-//    while (!empty && !predicate_(stack_->size())) {
+// uast::Node::DFSQueryIterator::DFSQueryIterator(std::function<bool(uint64_t,
+//                                                                  std::pair<std::basic_string<char>,
+//                                                                  std::shared_ptr<Node>>)>
+//                                                                  predicate,
+//                                               std::stack<std::pair<Iterator, Iterator>> *stack) :
+//                                               DFSIterator(stack), predicate_(predicate) {
+//    bool empty = stack_->empty() || (stack_->size() == 1 && stack_->top().first ==
+//    stack_->top().second); while (!empty && !predicate_(stack_->size())) {
 //        (this->operator++());
 //    }
 //}
