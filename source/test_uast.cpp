@@ -1,20 +1,6 @@
 #include <catch2/catch.hpp>
 #include "uast.h"
 
-TEST_CASE("Stub test #1") {
-    SECTION("Single call to stub") {
-        REQUIRE(uast::Stub() == "-- Uast loaded successfully");
-    }
-}
-
-TEST_CASE("Stub test #2") {
-    SECTION("Multiple call to stub") {
-        REQUIRE(uast::Stub() == "-- Uast loaded successfully");
-        REQUIRE(uast::Stub() == "-- Uast loaded successfully");
-        REQUIRE(uast::Stub() == "-- Uast loaded successfully");
-    }
-}
-
 TEST_CASE("Node basic test", "[uast::Node]") {
     SECTION("Constructor & Getters") {
         uast::Node node("1");

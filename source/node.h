@@ -5,9 +5,11 @@
 #include <vector>
 #include <stack>
 #include <functional>
+#include "node_type.h"
 
 namespace uast {
     class Node {
+        NodeType kek_ = Expression;
         std::unordered_multimap<std::string, std::shared_ptr<Node>> children_;
         using EdgeNodePair = std::pair<std::string, std::shared_ptr<Node>>;
         using Iterator = std::unordered_multimap<std::string, std::shared_ptr<Node>>::iterator;
