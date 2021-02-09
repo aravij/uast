@@ -1,128 +1,90 @@
 #include <catch2/catch.hpp>
+#include <vector>
+#include <iostream>
+#include <sstream>
 #include "uast.h"
 
+using uast::Node;
+using uast::NodeType;
+using Catch::Matchers::Equals;
+
 TEST_CASE("Node basic test", "[uast::Node]") {
-    SECTION("Constructor & Getters") {
-        uast::Node node("1");
-        uast::Node node_1("12", std::vector<std::string>{"a"}, std::vector<uast::Node>{node});
-        uast::Node node_2(
-                "22", std::vector<std::string>{"a"},
-                std::vector<std::shared_ptr<uast::Node>>{std::make_shared<uast::Node>(node)});
-        REQUIRE(node.GetType() == "1");
-        REQUIRE(node_1.GetType() == "12");
-        REQUIRE(node_2.GetType() == "22");
+    SECTION("Constructor") {
+        Node node1(NodeType::Expression);
+        Node node2(NodeType::ClassDefinition);
+        Node node3(NodeType::Expression, node2); // node1 -> node3 -> node2
+
+        Node node(std::make_shared<Node>(NodeType::ClassDefinition),
+                  NodeType::Statement,
+                  std::make_shared<Node>(NodeType::Expression));
     }
-    std::shared_ptr<uast::Node> node_1 = std::make_shared<uast::Node>("1");
-    std::shared_ptr<uast::Node> node_2 = std::make_shared<uast::Node>("2");
-    std::shared_ptr<uast::Node> node_p =
-            std::make_shared<uast::Node>("+", std::vector<std::string>{"lhs", "rhs"},
-                                         std::vector<std::shared_ptr<uast::Node>>{node_1, node_2});
-    std::shared_ptr<uast::Node> node_m;
 
-    SECTION("Linking & getter") {
-        REQUIRE(node_p->GetChild("lhs") == node_1);
-        REQUIRE(node_p->GetChild("rhs") == node_2);
+    std::shared_ptr<Node> parent = std::make_shared<Node>(NodeType::ClassDefinition);
+    std::shared_ptr<Node> child = std::make_shared<Node>(NodeType::Expression);
+    Node node(parent, NodeType::Statement, child);
 
-        node_m =
-                std::make_shared<uast::Node>("*", std::vector<std::string>{"rhs", "lhs"},
-                                             std::vector<std::shared_ptr<uast::Node>>{node_1, node_2});
+    SECTION("Getters") {
+        REQUIRE_FALSE(node.IsLeaf());
+        REQUIRE(node.GetChildren()[0]->IsLeaf());
 
-        REQUIRE(node_m->GetChild("lhs") == node_2);
-        REQUIRE(node_m->GetChild("rhs") == node_1);
+        REQUIRE(parent->GetChildren()[0]->GetChildren()[0] == child);
+        REQUIRE_THAT(node.GetChildren(), Equals(node.GetChildren())); // ?
+
+        REQUIRE(node.GetType() == NodeType::Statement);
+        REQUIRE(node.GetChildrenCopies(NodeType::FunctionDefinition & NodeType::Expression)[0].GetType() ==
+                NodeType::Expression);
+    }
+
+    SECTION("Getters advanced") {
+        REQUIRE_THAT(node[NodeType::Statement & NodeType::Expression & NodeType::ClassDefinition],
+                     Equals(node.GetChildren()));
     }
 
     SECTION("Adding children") {
-        std::shared_ptr<uast::Node> add1 = std::make_shared<uast::Node>("add1");
-        std::shared_ptr<uast::Node> add2 = std::make_shared<uast::Node>("add2");
-        node_1->AddChild("kek", add1);
-        node_1->AddChild("kek2", *add2);
-        REQUIRE(node_1->GetChild("kek") == add1);
-        REQUIRE(node_1->GetChild("kek2") != add2);
-        REQUIRE(node_1->GetChild("kek2")->GetType() == add2->GetType());
-        REQUIRE(node_p->GetChild("lhs")->GetChild("kek") == add1);
-    }
+        node.AddChild(parent);
+        REQUIRE(node.GetChildren().size() == 2);
 
-    std::shared_ptr<uast::Node> add11 = std::make_shared<uast::Node>("add1");
-    std::shared_ptr<uast::Node> add12 = std::make_shared<uast::Node>("add2");
-    node_1->AddChild("kek", add11);
-    node_1->AddChild("kek2", *add12);
-
-    SECTION("Is leaf") {
-        REQUIRE(node_p->GetChild("lhs")->GetChild("kek")->IsLeaf());
-        REQUIRE(!node_p->GetChild("lhs")->IsLeaf());
-        REQUIRE(node_p->GetChild("rhs")->IsLeaf());
+        node.AddChildren(node.GetChildrenCopies());
+        REQUIRE(node.GetChildren().size() == 4);
     }
 
     SECTION("Edge cases") {
-        REQUIRE(!node_p->GetChild("mhs"));
-        REQUIRE_THROWS(
-                std::make_shared<uast::Node>("*", std::vector<std::string>{"lhs"},
-                                             std::vector<std::shared_ptr<uast::Node>>{node_1, node_2}));
-        REQUIRE_THROWS(
-                std::make_shared<uast::Node>("*", std::vector<std::string>{"lhs", "rhs"},
-                                             std::vector<std::shared_ptr<uast::Node>>{node_1}));
-        REQUIRE_THROWS(std::make_shared<uast::Node>("*", std::vector<std::string>{"lhs"},
-                                                    std::vector<std::shared_ptr<uast::Node>>{}));
-        REQUIRE_NOTHROW(std::make_shared<uast::Node>("*", std::vector<std::string>{},
-                                                     std::vector<std::shared_ptr<uast::Node>>{}));
-    }
-}
-
-TEST_CASE("Node iteration tests", "[uast::Node::DFSIterator]") {
-    std::shared_ptr<uast::Node> node_1 = std::make_shared<uast::Node>("1");
-    std::shared_ptr<uast::Node> node_2 = std::make_shared<uast::Node>("2");
-    std::shared_ptr<uast::Node> node_3 = std::make_shared<uast::Node>("3");
-    std::shared_ptr<uast::Node> node_4 = std::make_shared<uast::Node>("4");
-    std::shared_ptr<uast::Node> node_5 = std::make_shared<uast::Node>("5");
-
-    node_1->AddChild("2", node_2);
-    node_1->AddChild("4", node_4);
-    node_4->AddChild("3", node_3);
-    node_3->AddChild("5", node_5);
-
-    /*
-     *  1
-     * | \
-     * 2  4
-     *    |
-     *    3
-     *    |
-     *    6
-     */
-
-    SECTION("Iterators comparison") {
-        REQUIRE(node_1->DFS().begin() != node_1->DFS().end());
-        REQUIRE(node_1->DFS().end() == node_1->DFS().end());
-        REQUIRE(node_1->DFS().begin() == node_1->DFS().begin());
-        REQUIRE(node_2->DFS().end() == node_2->DFS().end());
+        REQUIRE_THAT(node[NodeType::ClassDefinition], Equals(std::vector<std::shared_ptr<Node>>()));
     }
 
-    SECTION("Iterators usage in for") {
-        bool one, two, three, four, five;
-        one = two = three = four = five = false;
+    SECTION("Dumping") {
+        parent->AddChild(child);
+        parent->AddChild(node);
+        REQUIRE(parent->ToYAML() ==
+        "Node:\n"
+        "  Type: ClassDefinition\n"
+        "  Children:\n"
+        "    - Node:\n"
+        "        Type: Statement\n"
+        "        Children:\n"
+        "          - Node:\n"
+        "              Type: Expression\n"
+        "              Children: []\n"
+        "    - Node:\n"
+        "        Type: Expression\n"
+        "        Children: []\n"
+        "    - Node:\n"
+        "        Type: Statement\n"
+        "        Children:\n"
+        "          - Node:\n"
+        "              Type: Expression\n"
+        "              Children: []\n");
 
-        for (auto pair : node_1->DFS()) {
-            if (pair.first == "1") {
-                one = true;
-            }
-            if (pair.first == "2") {
-                two = true;
-            }
-            if (pair.first == "3") {
-                three = true;
-            }
-            if (pair.first == "4") {
-                four = true;
-            }
-            if (pair.first == "5") {
-                five = true;
-            }
-        }
+        std::stringstream s;
+        s << node;
 
-        REQUIRE(!one);
-        REQUIRE(two);
-        REQUIRE(three);
-        REQUIRE(four);
-        REQUIRE(five);
+        REQUIRE(s.str() ==
+        "Node:\n"
+        "  Type: Statement\n"
+        "  Children:\n"
+        "    - Node:\n"
+        "        Type: Expression\n"
+        "        Children: []\n");
+
     }
 }

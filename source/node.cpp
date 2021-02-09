@@ -1,194 +1,152 @@
 #include "node.h"
 
-// Node
+using NodePtr = std::shared_ptr<uast::Node>;
 
-std::shared_ptr<uast::Node> uast::Node::GetChild(std::string edge_name) {
-    if (children_.count(edge_name) > 0) {
-        return children_.find(edge_name)->second;
+namespace uast {
+    Node::Node(NodePtr parent, NodeType type, NodePtr child) : type_(type) {
+        AddChild(child);
+        parent->AddChild(*this);
     }
 
-    return nullptr;
-}
-
-uast::Node::Node(std::string type, std::vector<std::string> edges_names,
-                 std::vector<std::shared_ptr<Node>> children)
-        : type_(type), children_() {
-    if (edges_names.size() != children.size()) {
-        throw std::runtime_error(
-                "Number of keys (types): " + std::to_string(edges_names.size()) +
-                " is not equal to number of nodes: " + std::to_string(children.size()));
+    Node::Node(NodeType type, NodePtr child) : type_(type) {
+        AddChild(child);
     }
 
-    for (size_t i = 0; i < children.size(); i++) {
-        children_.emplace(edges_names[i], std::move(children[i]));
-    }
-}
-
-uast::Node::Node(std::string type, std::vector<std::string> edges_names, std::vector<Node> children)
-        : type_(type), children_() {
-    if (edges_names.size() != children.size()) {
-        throw std::runtime_error(
-                "Number of keys (types): " + std::to_string(edges_names.size()) +
-                " is not equal to number of nodes: " + std::to_string(children.size()));
+    Node::Node(NodePtr parent, NodeType type) : type_(type) {
+        parent->AddChild(*this);
     }
 
-    for (size_t i = 0; i < children.size(); i++) {
-        children_.emplace(edges_names[i], std::make_shared<Node>(children[i]));
-    }
-}
-
-void uast::Node::AddChild(std::string edge_name, std::shared_ptr<Node> child) {
-    children_.emplace(edge_name, std::move(child));
-}
-
-void uast::Node::AddChild(std::string edge_name, uast::Node child) {
-    children_.emplace(edge_name, std::make_shared<uast::Node>(child));
-}
-
-std::string uast::Node::GetType() {
-    return type_;
-}
-
-bool uast::Node::IsLeaf() {
-    return children_.empty();
-}
-
-std::shared_ptr<uast::Node> uast::Node::operator[](std::string edge_name) {
-    return GetChild(edge_name);
-}
-
-uast::Node::Node(std::string type) : type_(type), children_() {
-}
-
-uast::Node::DFSRange uast::Node::DFS() {
-    return uast::Node::DFSRange(this);
-}
-
-
-uast::Node::DFSIterator::DFSIterator(std::stack<std::pair<Iterator, Iterator>> *stack) : stack_(stack) {
-    PopEnds();
-    GoDown();
-//    PopEnds();
-}
-
-uast::Node::DFSIterator &uast::Node::DFSIterator::operator++() {
-    if (stack_->empty()) {
-        return *this;
+    Node::Node(NodeType type, Node child_to_copy) : type_(type) {
+        AddChild(child_to_copy);
     }
 
-    if (stack_->top().first == stack_->top().second) {
-        stack_->pop();
-        if (stack_->empty()) {
-            return *this;
-        }
-        stack_->top().first++;
-        GoDown();
-        return *this;
+    Node::Node(NodeType type, std::vector<std::shared_ptr<Node>> children) : type_(type) {
+        AddChildren(children);
     }
 
-    stack_->top().first++;
-    return *this;
-}
-
-uast::Node::DFSIterator uast::Node::DFSIterator::operator++(int) {
-    uast::Node::DFSIterator old = *this;
-    ++(*this);
-    return old;
-}
-
-bool uast::Node::DFSIterator::operator==(const uast::Node::DFSIterator &other) const {
-    bool empty = stack_->empty() || (stack_->size() == 1 && stack_->top().first == stack_->top().second);
-    bool other_empty = other.stack_->empty() ||
-                       (other.stack_->size() == 1 && other.stack_->top().first == other.stack_->top().second);
-
-    if (other_empty != empty) {
-        return false;
+    Node::Node(NodeType type, std::vector<Node> children_to_copy) : type_(type) {
+        AddChildren(children_to_copy);
     }
 
-    if (other_empty == empty) {
-        return true;
+    Node::Node(std::shared_ptr<Node> parent, NodeType type, std::vector<std::shared_ptr<Node>> children) : type_(type) {
+        AddChildren(children);
+        parent->AddChild(*this);
     }
 
-    auto *my_stack = stack_;
-    auto *other_stack = other.stack_;
+    Node::Node(NodeType type) : type_(type) {
 
-    while (!other_stack->empty() && !my_stack->empty()) {
-        if (other_stack->top().first != my_stack->top().first) {
-            return false;
-        }
-        other_stack->pop();
-        my_stack->pop();
-        if (other.stack_->empty() != stack_->empty()) {
-            return false;
+    }
+
+    void Node::AddChild(NodePtr child) {
+        children_.push_back(child);
+    }
+
+    void Node::AddChild(Node child_to_copy) {
+        children_.push_back(std::make_shared<Node>(child_to_copy));
+    }
+
+    void Node::AddChildren(std::vector<NodePtr> children) {
+        for (auto child : children) {
+            AddChild(child);
         }
     }
 
-    return true;
-}
-
-uast::Node::EdgeNodePair uast::Node::DFSIterator::operator*() {
-    if (stack_->top().first == stack_->top().second) {
-        auto top = stack_->top();
-        stack_->pop();
-        auto p = stack_->top();
-        stack_->push(top);
-        return *p.first;
+    void Node::AddChildren(std::vector<Node> children_to_copy) {
+        for (auto child : children_to_copy) {
+            AddChild(child);
+        }
     }
 
-    return *stack_->top().first;
-}
-
-uast::Node::Iterator uast::Node::DFSIterator::operator->() {
-    if (stack_->top().first == stack_->top().second) {
-        auto top = stack_->top();
-        stack_->pop();
-        auto p = stack_->top();
-        stack_->push(top);
-        return p.first;
+    std::vector<NodePtr> Node::GetChildren(NodeType node_type) {
+        return GetChildren(std::vector<NodeType> {node_type});
     }
 
-    return stack_->top().first;
-}
+    std::vector<NodePtr> Node::GetChildren(std::vector<NodeType> node_types) {
+        std::vector<NodePtr> nodes;
+        for (NodePtr p : children_) {
+            bool in = false;
+            for (NodeType t : node_types) {
+                in |= t == p->GetType();
+            }
+            if (in) {
+                nodes.push_back(p);
+            }
+        }
+        return nodes;
+    }
 
-bool uast::Node::DFSIterator::operator!=(const uast::Node::DFSIterator &other) const {
-    return !(*this == other);
-}
+    std::vector<Node> Node::GetChildrenCopies(NodeType node_type) {
+        std::vector<NodePtr> nodes = GetChildren(node_type);
+        std::vector<Node> nodes_copies;
+        for (NodePtr p : children_) {
+            nodes_copies.push_back(*p);
+        }
+        return nodes_copies;
+    }
 
-void uast::Node::DFSIterator::GoDown() {
-    while (stack_ && !stack_->empty() && stack_->top().first != stack_->top().second &&
-           !stack_->top().first->second->children_.empty()) {
-        stack_->push(std::make_pair(stack_->top().first->second->children_.begin(),
-                                    stack_->top().first->second->children_.end()));
+    std::vector<Node> Node::GetChildrenCopies(std::vector<NodeType> node_types) {
+        std::vector<NodePtr> nodes = GetChildren(node_types);
+        std::vector<Node> nodes_copies;
+        for (NodePtr p : children_) {
+            nodes_copies.push_back(*p);
+        }
+        return nodes_copies;
+    }
+
+    std::vector<NodePtr> Node::GetChildren() {
+        return children_;
+    }
+
+    std::vector<Node> Node::GetChildrenCopies() {
+        std::vector<Node> v;
+        for (auto p : children_) {
+            v.push_back(*p);
+        }
+        return v;
+    }
+
+    NodeType Node::GetType() {
+        return type_;
+    }
+
+    bool Node::IsLeaf() {
+        return children_.empty();
+    }
+
+    std::vector<NodePtr> Node::operator[](NodeType node_type) {
+        return GetChildren(node_type);
+    }
+
+    std::vector<NodePtr> Node::operator[](std::vector<NodeType> node_types) {
+        return GetChildren(node_types);
+    }
+
+    std::vector<NodePtr> Node::operator[](bool) {
+        return children_;
+    }
+
+    std::string Node::ToYAML() {
+        std::stringstream s;
+        ToYAMLIndented(s);
+        return s.str();
+    }
+
+    void Node::ToYAMLIndented(std::stringstream & stream, int indent) {
+        if (indent > 0) {
+            stream << std::string(indent, ' ') << "- " << "Node:" << std::endl;
+            indent += 2;
+        } else {
+            stream << "Node:" << std::endl;
+        }
+        indent += 2;
+        stream << std::string(indent, ' ') << "Type: " << this->GetType() << std::endl;
+        if (children_.empty()) {
+            stream << std::string(indent, ' ') << "Children: []" << std::endl;
+            return;
+        }
+        stream << std::string(indent, ' ') << "Children:" << std::endl;
+        for (NodePtr p : children_) {
+            p->ToYAMLIndented(stream, indent + 2);
+        }
     }
 }
-
-void uast::Node::DFSIterator::PopEnds() {
-    while (stack_ && !stack_->empty() && stack_->top().first == stack_->top().second) {
-        stack_->pop();
-    }
-}
-
-uast::Node::DFSRange::DFSRange(uast::Node *node) : stack_() {
-    stack_.emplace(node->children_.begin(), node->children_.end());
-}
-
-uast::Node::DFSIterator uast::Node::DFSRange::begin() { // NOLINT
-    return uast::Node::DFSIterator(&stack_);
-}
-
-uast::Node::DFSIterator uast::Node::DFSRange::end() { // NOLINT
-    return uast::Node::DFSIterator(&empty_stack_);
-}
-
-//uast::Node::DFSQueryIterator::DFSQueryIterator(std::stack<std::pair<Iterator, Iterator>> *node, std::function<bool(size_t, EdgeNodePair)> predicate) : uast::Node::DFSIterator(node),  {
-//
-//}
-
-//uast::Node::DFSQueryIterator::DFSQueryIterator(std::function<bool(uint64_t,
-//                                                                  std::pair<std::basic_string<char>, std::shared_ptr<Node>>)> predicate,
-//                                               std::stack<std::pair<Iterator, Iterator>> *stack) : DFSIterator(stack), predicate_(predicate) {
-//    bool empty = stack_->empty() || (stack_->size() == 1 && stack_->top().first == stack_->top().second);
-//    while (!empty && !predicate_(stack_->size())) {
-//        (this->operator++());
-//    }
-//}
