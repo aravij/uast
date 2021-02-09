@@ -16,7 +16,7 @@ namespace uast {
         std::vector<std::shared_ptr<Node>> children_;
         NodeType type_;
 
-        void ToYAMLIndented(std::stringstream & stream, int indent = 0);
+        void ToYAMLIndented(std::stringstream &stream, int indent = 0);
 
     public:
         Node(std::shared_ptr<Node> parent, NodeType type, std::shared_ptr<Node> child);
@@ -68,13 +68,9 @@ namespace uast {
         std::string ToYAML();
     };
 
-    inline std::ostream & operator<<(std::ostream & out, Node& node) {
+    inline std::ostream &operator<<(std::ostream &out, Node &node) {
         out << node.ToYAML();
 
         return out;
     }
 }
-
-
-
-

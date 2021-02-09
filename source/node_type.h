@@ -25,7 +25,7 @@ namespace uast {
               Statement,
               FunctionDefinition,
               ClassDefinition
-    );
+    )
 
     inline std::vector<NodeType> operator&(NodeType lhs, NodeType rhs) {
         return std::vector<NodeType>{lhs, rhs};
